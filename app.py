@@ -1,58 +1,56 @@
-# -*- coding: utf-8 -*-
-"""
-
-- openai:用于调用兼容0penAI格式的API
-- os:用于读取环境变量
-
-环境变量要求:
-      - DASHSCOPE_API_KEY:阿里云DashScope平台的API密钥，用于身份验证和模型访问
-
-使用方法:
-    1.设置环境变量:set DASHSCOPE_API_KEY=您的API密钥
-    2.运行脚本:python GradioDemo.py
-    3.在浏览器中访问:http://127.0.0.1:7860
-
-使用示例:
-```bash
-#在Windows上设置环境变量
-set DASHSCOPE_API_KEY=your_actual_api_key
-
-#在Linux/Mac上设置环境变量   
-export DASHSCOPE_API_KEY=your_actual_api_key
-
- #运行应用程序
-python llm.py 
-```
-
-注意事项:
-1.API密钥安全:DASHSCOPE APIKEY是敏感信息，请不要交到版本控制系统
-
-
-py -3 --version
-
-py -3 -m venv .venv 创建虚拟环境
-
-.venv\Scripts\activate     激活虚拟环境
-
-"""
 
 # 导入必要的库
 import gradio as gr         #Gradio库 用于创建Web界面
-from main import backendService
 
+import requests
+
+import uuid
+
+# =========== 配置 ==========
+API_URL = "http://127.0.0.1:8000/chat"
+
+# 当前浏览器会话生成唯一 ID, 保证多轮对话上下文连续
+SESSION_ID = str(uuid.uuid4())
+
+
+# ======== 核心函数 ========
+def chat_with_api(message: str, history: list) -> str:
+  """
+  通过 HTTP 请求调用后端 API
+  - message: 用户当前输入
+  - history: Gradio 自动传入的对话历史（仅用于界面展示，后端自己管理真实历史）
+  """
+  try:
+    response = requests.post(
+      API_URL,
+      json={
+        "message": message,
+        "session_id": SESSION_ID
+      },
+      timeout=60
+    )
+    response.raise_for_status()
+    data = response.json()
+    return data["reply"]
+  except requests.exceptions.ConnectionError:
+    return "❌ 无法连接到后端服务，请确认已执行： uvicorn backend.api:app --reload"
+  except requests.exceptions.Timeout:
+    return "❌ 请求超时，Agent 处理时间过长"
+  except Exception as e:
+    return f"❌ 请求失败：{str(e)}"
 
 # 如果未设置API密钥，提供油耗的错误提示
 #if not api_key:
   
 #使用ChatInterface组件，这是Gradio提供的专门用于创建聊天界面的组件
 demo = gr.ChatInterface(
-  fn = backendService,                                 # 指定处理聊天消息的回调函数，将调用通义千问API
-  title = "通义千问",                             # 界面标题
-  description="基于通义千问max的聊天机器人",        # 界面描述
+  fn = chat_with_api,                                 # 指定处理聊天消息的回调函数，将调用通义千问API
+  title = "🌤️ 天气 Agent",                             # 界面标题
+  description="通过 API 调用后端天气 Agent（Gradio 前端 → FastAPI 后端）",        # 界面描述
   examples=[
-    ["你好"],
-    ["你叫什么名字"],
-    ["给我讲一个笑话呗"]
+    ["北京天气怎么样"],
+    ["上海今天下雨吗"],
+    ["杭州明天多少度"]
   ]
 )
 

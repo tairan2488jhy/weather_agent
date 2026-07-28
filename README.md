@@ -23,6 +23,12 @@ while ($true) { python app.py; Write-Host "重启中..."; Start-Sleep -Seconds 1
   
 # 作为独立项目，升级，完成项目升级 github项目地址 
 
+# 增加 backend 服务层 
+启动顺序：
+# 终端 1：启动后端（FastAPI）
+uvicorn backend.api:app --reload
 
+# 终端 2：启动前端（Gradio）
+python app.py
 
 
