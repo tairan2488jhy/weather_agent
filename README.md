@@ -20,6 +20,9 @@ while ($true) { python app.py; Write-Host "重启中..."; Start-Sleep -Seconds 1
 
 # 接入正式的天气 api 
 1. pip install requests
+  
+# 作为独立项目，升级，完成项目升级 github项目地址 
+
 
 
 

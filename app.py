@@ -38,19 +38,15 @@ py -3 -m venv .venv 创建虚拟环境
 
 # 导入必要的库
 import gradio as gr         #Gradio库 用于创建Web界面
-from agent import run_agent 
+from main import backendService
 
 
 # 如果未设置API密钥，提供油耗的错误提示
 #if not api_key:
-
-# 定义一个函数，用于调用通义千问max模型生成回复
-def call_qwen(message, history):
-  return run_agent(message, history)
   
 #使用ChatInterface组件，这是Gradio提供的专门用于创建聊天界面的组件
 demo = gr.ChatInterface(
-  fn = call_qwen,                                 # 指定处理聊天消息的回调函数，将调用通义千问API
+  fn = backendService,                                 # 指定处理聊天消息的回调函数，将调用通义千问API
   title = "通义千问",                             # 界面标题
   description="基于通义千问max的聊天机器人",        # 界面描述
   examples=[
