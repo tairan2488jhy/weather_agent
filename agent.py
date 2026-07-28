@@ -1,8 +1,13 @@
 import json
-from llm_service import llm_chat_completions_use_tools, llm_chat_completions_no_tools
-from tools import get_weather_real
+from llm import create_llm_client, BaseLLMClient
+from tools import weather_agent_tools, get_weather_real
 
-def run_agent(message, history):
+# ======== 初始化 LLM 客户端 ========
+# 秩序改动这一行，就能切换整个 Agent 的底层模型
+llm_client: BaseLLMClient = create_llm_client("qwen")
+
+
+def run_agent(message: str, history: list = None) -> str:
   """
   调用通义千问max模型的函数
 
@@ -62,7 +67,11 @@ def run_agent(message, history):
 
   try:
     # 使用qwen-max模型，这是通义千问系列中的高性能版本   
-    response = llm_chat_completions_use_tools(messages)
+    response = llm_client.chat_completion_with_tools(
+      messages=messages,
+      tools=weather_agent_tools,
+      model=None
+      )
 
     assistant_message = response.choices[0].message
 
@@ -94,7 +103,10 @@ def run_agent(message, history):
         })   
 
       # 6. 第二次调用 LLM， 让他根据工具返回的结果生成最终的回复  
-      second_response = llm_chat_completions_no_tools(messages)
+      second_response = llm_client.chat_completion(
+        messages=messages,
+        model=None
+        )
       return second_response.choices[0].message.content
 
     else:
