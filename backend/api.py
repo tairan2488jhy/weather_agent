@@ -19,29 +19,16 @@ API 接口层（Controller Layer）
 """
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from .schemas import ChatRequest, ChatResponse
 from .service import process
 
 
 app = FastAPI(title="Weather Agent Backend API")
 
 
-# --- 定义请求和响应的数据模型 ---
-
-class ChatRequest(BaseModel):
-  """定义 POST /chat 接口接收的 JSON 数据格式"""
-  message: str
-  session_id: str | None = None 
-
-class chatResponse(BaseModel):
-  """定义 POST /chat 接口返回的 JSON 数据格式"""
-  reply: str
-  session_id: str | None = None
-
-
 # --- 定义 API 路由 ---
 
-@app.post("/chat", response_model=chatResponse)
+@app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
   """
   API 接口层 (Controller Layer)
@@ -59,7 +46,7 @@ async def chat_endpoint(request: ChatRequest):
     reply = process(message=request.message, session_id=request.session_id)
 
     # 4. 包装并返回响应
-    return chatResponse(reply= reply, session_id=request.session_id) 
+    return ChatResponse(reply= reply, session_id=request.session_id) 
 
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))

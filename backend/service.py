@@ -1,6 +1,7 @@
 # backend/service.py\
 from typing import Optional, Dict, Any
 from agent import run_agent
+from .schemas import AgentContext
 
 # 简单的内存会话存储，用于演示。生产环境建议使用Redis。
 
@@ -22,12 +23,13 @@ def process(message: str, session_id: Optional[str] = None) -> str:
   # 1. & 2. 准备上下文（Prepare Context）
   # 如果 session_id 不存在, 则初始化为空列表
   history = _session_store.get(session_id, [])
+  context = AgentContext(session_id=session_id, history=history)
 
 
   # 3. 调用 Agent（Call Agent）
   # 将当前的 message 和 history 传递给核心的 agent 逻辑
   # 注意： 这里假设 agent.run_agent 能够正确处理 history 并返回最终的文本回复
-  reply = run_agent(message, history)
+  reply = run_agent(message, context.history)
 
   # 4. 更新上下文（Update Context）
   # 将本轮对话（用户提问和AI回复）追加到历史记录中

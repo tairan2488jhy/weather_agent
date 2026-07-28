@@ -39,7 +39,7 @@ def get_weather_real(city):
 
   try:
     # 2. 发送GET请求
-    response = requests.get(url, timeout=10) # 设置10秒超时
+    response = requests.get(url, timeout=30) # 设置10秒超时
 
 
     # 3. 检查请求是否成功

@@ -77,4 +77,24 @@
    pip list | findstr llm
 
 
+#   schemas 数据流程图
+### 📌 数据流总览
+
+```
+┌──────────┐                          ┌──────────────────────────────────────┐
+│          │   ChatRequest            │              backend/                │
+│  app.py  │ ─────────────────────▶   │                                      │
+│ (前端)   │   { message, session_id }│  api.py ──调用──▶ service.py         │
+│          │                          │    │                    │            │
+│          │   ChatResponse           │    │ 使用               │ 使用        │
+│          │ ◀─────────────────────   │    ▼                    ▼            │
+└──────────┘   { reply, session_id }  │  schemas.py ◀── 统一数据契约 ──▶     │
+                                      │  (ChatRequest, ChatResponse,         │
+                                      │   AgentContext)                       │
+                                      └──────────────────────────────────────┘
+``` 
+
+
+
+
 
