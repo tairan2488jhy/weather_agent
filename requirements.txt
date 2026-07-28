@@ -1,1 +1,11 @@
 # 实现我的第一个agent 天气agent
+
+# 目前使用的依赖：
+
+openai
+gradio
+fastapi
+uvicorn
+requests
+
+# 一键安装环境  python -m pip install -r requirements.txt
