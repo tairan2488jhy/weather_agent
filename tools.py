@@ -1,4 +1,5 @@
 import requests
+from config import LLM_TIMEOUT
 
 weather_agent_tools = [
     {
@@ -39,7 +40,7 @@ def get_weather_real(city):
 
   try:
     # 2. 发送GET请求
-    response = requests.get(url, timeout=30) # 设置10秒超时
+    response = requests.get(url, timeout=LLM_TIMEOUT) # 设置10秒超时
 
 
     # 3. 检查请求是否成功

@@ -1,13 +1,12 @@
 
 # 导入必要的库
 import gradio as gr         #Gradio库 用于创建Web界面
-
 import requests
-
 import uuid
+from config import SERVICE_API_URL
 
 # =========== 配置 ==========
-API_URL = "http://127.0.0.1:8000/chat"
+API_URL = SERVICE_API_URL
 
 # 当前浏览器会话生成唯一 ID, 保证多轮对话上下文连续
 SESSION_ID = str(uuid.uuid4())

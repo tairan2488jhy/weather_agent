@@ -21,6 +21,7 @@ API 接口层（Controller Layer）
 from fastapi import FastAPI, HTTPException
 from .schemas import ChatRequest, ChatResponse
 from .service import process
+from config import HOST, PORT
 
 
 app = FastAPI(title="Weather Agent Backend API")
@@ -61,4 +62,4 @@ async def health_check():
 # 如果直接运行此文件，则启动 Uvicorn 服务器
 if __name__ == "__main__":
   import uvicorn
-  uvicorn.run(app, host="0.0.0.0", port=8000)
+  uvicorn.run(app, host=HOST, port=PORT)
