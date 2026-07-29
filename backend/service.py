@@ -2,6 +2,7 @@
 from typing import Optional, Dict, Any
 from agent import run_agent
 from .schemas import AgentContext
+from logger import logger # 新增导入
 
 # 简单的内存会话存储，用于演示。生产环境建议使用Redis。
 
@@ -19,6 +20,9 @@ def process(message: str, session_id: Optional[str] = None) -> str:
   4. 更新上下文（将本轮对话存入 _session_store）
   5. 返回结果
   """
+
+  # --- 记录业务请求 ---
+  logger.info(f"业务层收到请求 - Session: {session_id}, 消息: '{message}'")
 
   # 1. & 2. 准备上下文（Prepare Context）
   # 如果 session_id 不存在, 则初始化为空列表
@@ -44,6 +48,9 @@ def process(message: str, session_id: Optional[str] = None) -> str:
       {"role": "assistant", "content": reply},
     ]
     _session_store[session_id] = new_history
+
+  # --- 记录业务响应 ---
+  logger.info(f"业务层处理完成 - Session: {session_id}")
 
   # 5. 返回结果
   return reply

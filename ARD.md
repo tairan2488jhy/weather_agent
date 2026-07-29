@@ -99,6 +99,20 @@
 # 6 增加 .env 完善配置文件，并且 .env 被 gitignore 完善config
 
 # 7 发现作为一个完整的系统，日志目前时缺失的，因此我需要记录兄完成的运行和错误日志
+输出日志：
+2026-07-29 15:53:05 - INFO - api.py:35 - API 请求: POST /chat
+2026-07-29 15:53:05 - INFO - service.py:25 - 业务层收到请求 - Session: 9a712d9b-8dd8-48ae-bb32-f14f37a7d31c, 消息: '北京天气怎么样'
+2026-07-29 15:53:05 - INFO - agent.py:71 - 收到用户请求: '北京天气怎么样'
+2026-07-29 15:53:10 - INFO - agent.py:96 - 正在执行工具: get_weather_real, 参数: {'city': '北京'}
+[系统日志]正在从真实API查询 北京 的天气…
+2026-07-29 15:53:11 - INFO - agent.py:108 - 工具执行成功: get_weather_real, 耗时: 1.20s, 结果: 北京: 🌤️  +36°C
+
+2026-07-29 15:53:11 - INFO - agent.py:131 - 正在请求 LLM 生成最终回复...
+2026-07-29 15:53:14 - INFO - agent.py:137 - 请求处理完成，总耗时: 9.03s
+2026-07-29 15:53:14 - INFO - service.py:53 - 业务层处理完成 - Session: 9a712d9b-8dd8-48ae-bb32-f14f37a7d31c
+2026-07-29 15:53:14 - INFO - api.py:39 - API 响应: POST /chat - 状态码: 200
+INFO:     127.0.0.1:59827 - "POST /chat HTTP/1.1" 200 OK
+
 
 
 

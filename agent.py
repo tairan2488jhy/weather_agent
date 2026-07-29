@@ -1,6 +1,8 @@
 import json
+import time
 from llm import create_llm_client, BaseLLMClient
 from tools import weather_agent_tools, get_weather_real
+from logger import logger
 
 # ======== 初始化 LLM 客户端 ========
 # 秩序改动这一行，就能切换整个 Agent 的底层模型
@@ -65,6 +67,10 @@ def run_agent(message: str, history: list = None) -> str:
   # 这确保了模型能够接收到用户的最新请求    
   messages.append({"role": "user", "content": message})
 
+  # --- 记录请求开始 ---
+  logger.info(f"收到用户请求: '{message}'")
+  start_time = time.time() # 记录开始时间
+
   try:
     # 使用qwen-max模型，这是通义千问系列中的高性能版本   
     response = llm_client.chat_completion_with_tools(
@@ -72,6 +78,10 @@ def run_agent(message: str, history: list = None) -> str:
       tools=weather_agent_tools,
       model=None
       )
+    
+    # --- 记录首次 LLM 响应 ---
+    latency = time.time() - start_time
+    logger.debug(f"首次 LLM 响应延迟: {latency:.2f}s")
 
     assistant_message = response.choices[0].message
 
@@ -83,12 +93,26 @@ def run_agent(message: str, history: list = None) -> str:
       for tool_call in assistant_message.tool_calls:
         function_name = tool_call.function.name
         function_args = json.loads(tool_call.function.arguments) #解析参数
+        logger.info(f"正在执行工具: {function_name}, 参数: {function_args}")
+
+        tool_start = time.time()
 
         # result = "没有结果返回"
         # 4. 执行真正的 python 函数
-        if function_name == "get_weather_real":
-          result = get_weather_real(**function_args)
 
+        try:
+          if function_name == "get_weather_real":
+            result = get_weather_real(**function_args)
+
+          tool_latency = time.time() - tool_start
+          logger.info(f"工具执行成功: {function_name}, 耗时: {tool_latency:.2f}s, 结果: {result}")
+
+        except Exception as e:
+          tool_latency = time.time() - tool_start
+          logger.error(f"工具执行失败: {tool_name}, 耗时: {tool_latency:.2f}s, 错误: {e}")
+          result = f"Error: {e}"
+
+        
       
 
         # return result
@@ -103,14 +127,20 @@ def run_agent(message: str, history: list = None) -> str:
         })   
 
       # 6. 第二次调用 LLM， 让他根据工具返回的结果生成最终的回复  
+
+      logger.info("正在请求 LLM 生成最终回复...")
       second_response = llm_client.chat_completion(
         messages=messages,
         model=None
         )
+      final_latency = time.time() - start_time
+      logger.info(f"请求处理完成，总耗时: {final_latency:.2f}s")
       return second_response.choices[0].message.content
 
     else:
       # 如果模型没有调用工具，直接返回它的回复
+      total_latency = time.time() - start_time
+      logger.info(f"模型直接回复，总耗时: {total_latency:.2f}s")
       return assistant_message.content
 
 

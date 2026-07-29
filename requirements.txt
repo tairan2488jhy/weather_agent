@@ -8,5 +8,7 @@ fastapi
 uvicorn
 requests
 dotenv
+logging
+time
 
 # 一键安装环境  python -m pip install -r requirements.txt
