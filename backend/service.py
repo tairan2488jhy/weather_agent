@@ -40,7 +40,7 @@ def process(message: str, session_id: Optional[str] = None) -> str:
     # 将本轮对话记录下来，以便下次使用
     # 这里的格式需要和你的 agent.py 中解析 history 的格式保持一致
     new_history = history + [
-      {"rule": "user", "content": message},
+      {"role": "user", "content": message},
       {"role": "assistant", "content": reply},
     ]
     _session_store[session_id] = new_history
