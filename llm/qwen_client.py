@@ -37,4 +37,13 @@ class QwenClient(BaseLLMClient):
     # 返回原始响应对象， agent.py 从中提取信息
     return response
 
+  def chat_completion_stream(self, messages: list, model):
+    """
+    流式调用，返回 chunk 迭代器（生成器）
+    """
+    return self.client.chat.completions.create(
+      model=model or QWEN_MODEL
+      messages=messages,
+      stream=True, # 关键：开启流式
+    )
     

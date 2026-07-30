@@ -19,15 +19,23 @@ class OpenAIClient(BaseLLMClient):
 
     def chat_completion(self, messages: list, model: str) -> str:
         response = self.client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=model or OPENAI_MODEL,
             messages=messages
         )
         return response.choices[0].message.content
 
     def chat_completion_with_tools(self, messages: list, tools: list, model: str) -> dict:
         response = self.client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=model or OPENAI_MODEL,
             messages=messages,
             tools=tools
         )
         return response
+    
+    def chat_completion_stream(self, messages: list, model: str) -> str:
+        response = self.client.chat.completions.create(
+            model=model or OPENAI_MODEL,
+            messages=messages,
+            stream=True
+        )
+        return response.choices[0].message.content

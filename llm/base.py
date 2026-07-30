@@ -32,3 +32,10 @@ class BaseLLMClient(ABC):
     :return: 模型的原始响应（dict），包含 tool_calls 等信息
     """
     pass
+
+  @abstractmethod
+  def chat_completion_stream(self, messages: list, model: str):
+    """
+    不带工具的流式调用，返回 chunk 迭代器
+    """
+    pass

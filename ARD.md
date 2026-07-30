@@ -66,7 +66,105 @@
 INFO:     127.0.0.1:59827 - "POST /chat HTTP/1.1" 200 OK
 
 # 改造任务4 增加测试模块和测试单元
+---
+pytest tests/ -v
+========================================= test session starts =========================================
+platform win32 -- Python 3.13.5, pytest-9.1.1, pluggy-1.6.0 -- D:\StudyRoom\AICoding\Wether_Agent\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\StudyRoom\AICoding\Wether_Agent
+plugins: anyio-4.14.2
+collected 12 items                                                                                     
 
-# 改造任务5 增加 llm 返回的 steam
+tests/test_agent.py::TestRunAgent::test_direct_reply_no_tool PASSED                              [  8%]
+tests/test_agent.py::TestRunAgent::test_tool_call_flow PASSED                                    [ 16%]
+tests/test_agent.py::TestRunAgent::test_with_history PASSED                                      [ 25%] 
+tests/test_llm_client.py::TestQwenClient::test_chat_completion_returns_response PASSED           [ 33%] 
+tests/test_llm_client.py::TestQwenClient::test_chat_completion_with_tools_returns_response PASSED [ 41%]
+tests/test_llm_client.py::TestQwenClient::test_tools_passed_to_api PASSED                        [ 50%] 
+tests/test_llm_client.py::TestCreateLLMClient::test_create_qwen_client PASSED                    [ 58%] 
+tests/test_llm_client.py::TestCreateLLMClient::test_unsupported_provider_raises_error FAILED     [ 66%]
+tests/test_weather_tool.py::TestGetWeatherReal::test_known_city PASSED                           [ 75%]
+tests/test_weather_tool.py::TestGetWeatherReal::test_unknown_city FAILED                         [ 83%]
+tests/test_weather_tool.py::TestGetWeatherReal::test_return_type_is_string PASSED                [ 91%]
+tests/test_weather_tool.py::TestGetWeatherReal::test_empty_input PASSED                          [100%]
+
+============================================== FAILURES =============================================== 
+_____________________ TestCreateLLMClient.test_unsupported_provider_raises_error ______________________ 
+
+self = <tests.test_llm_client.TestCreateLLMClient object at 0x00000178A25BA850>
+
+    def test_unsupported_provider_raises_error(self):
+        """传入不支持的 provider 应抛出 ValueError"""
+        from llm import create_llm_client
+>       with pytest.raises(ValueError, match="Unsupported"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'Unsupported'
+E         Actual message: "不支持的 LLM 供应商：claude, 当前支持： ['qwen', 'openai']"
+
+tests\test_llm_client.py:88: AssertionError
+E         Expected regex: 'Unsupported'
+E         Actual message: "不支持的 LLM 供应商：claude, 当前支持： ['qwen', 'openai']"
+
+tests\test_llm_client.py:88: AssertionError
+________________________________ TestGetWeatherReal.test_unknown_city _________________________________ 
+
+self = <tests.test_weather_tool.TestGetWeatherReal object at 0x00000178A27D5450>
+
+E         Actual message: "不支持的 LLM 供应商：claude, 当前支持： ['qwen', 'openai']"
+
+tests\test_llm_client.py:88: AssertionError
+________________________________ TestGetWeatherReal.test_unknown_city _________________________________ 
+
+self = <tests.test_weather_tool.TestGetWeatherReal object at 0x00000178A27D5450>
+
+    def test_unknown_city(self):
+        """未知城市应返回提示信息"""
+tests\test_llm_client.py:88: AssertionError
+________________________________ TestGetWeatherReal.test_unknown_city _________________________________ 
+
+self = <tests.test_weather_tool.TestGetWeatherReal object at 0x00000178A27D5450>
+
+    def test_unknown_city(self):
+        """未知城市应返回提示信息"""
+________________________________ TestGetWeatherReal.test_unknown_city _________________________________ 
+
+self = <tests.test_weather_tool.TestGetWeatherReal object at 0x00000178A27D5450>
+
+    def test_unknown_city(self):
+        """未知城市应返回提示信息"""
+        result = get_weather_real("亚特兰蒂斯")
+self = <tests.test_weather_tool.TestGetWeatherReal object at 0x00000178A27D5450>
+
+    def test_unknown_city(self):
+        """未知城市应返回提示信息"""
+        result = get_weather_real("亚特兰蒂斯")
+        assert isinstance(result, str)
+    def test_unknown_city(self):
+        """未知城市应返回提示信息"""
+        result = get_weather_real("亚特兰蒂斯")
+        assert isinstance(result, str)
+        result = get_weather_real("亚特兰蒂斯")
+        assert isinstance(result, str)
+>       assert "暂无" in result or "未找到" in result or "暂无数据" in result
+E       AssertionError: assert ('暂无' in '亚特兰蒂斯: ☀️  +31°C\n' or '未找到' in '亚特兰蒂斯: ☀️  +31°C\        assert isinstance(result, str)
+>       assert "暂无" in result or "未找到" in result or "暂无数据" in result
+E       AssertionError: assert ('暂无' in '亚特兰蒂斯: ☀️  +31°C\n' or '未找到' in '亚特兰蒂斯: ☀️  +31°C\>       assert "暂无" in result or "未找到" in result or "暂无数据" in result
+E       AssertionError: assert ('暂无' in '亚特兰蒂斯: ☀️  +31°C\n' or '未找到' in '亚特兰蒂斯: ☀️  +31°C\n' or '暂无数据' in '亚特兰蒂斯: ☀️  +31°C\n')
+E       AssertionError: assert ('暂无' in '亚特兰蒂斯: ☀️  +31°C\n' or '未找到' in '亚特兰蒂斯: ☀️  +31°C\n' or '暂无数据' in '亚特兰蒂斯: ☀️  +31°C\n')
+C\n' or '暂无数据' in '亚特兰蒂斯: ☀️  +31°C\n')
+
+tests\test_weather_tool.py:22: AssertionError
+---------------------------------------- Captured stdout call ----------------------------------------- 
+[系统日志]正在从真实API查询 亚特兰蒂斯 的天气…
+======================================= short test summary info ======================================= 
+FAILED tests/test_llm_client.py::TestCreateLLMClient::test_unsupported_provider_raises_error - AssertionError: Regex pattern did not match.
+FAILED tests/test_weather_tool.py::TestGetWeatherReal::test_unknown_city - AssertionError: assert ('暂无' in '亚特兰蒂斯: ☀️  +31°C\n' or '未找到' in '亚特兰蒂斯: ☀️  +31°C\n' ...
+==================================== 2 failed, 10 passed in 6.88s ===================================== 
+---
+
+# 改造任务5 增加 llm 返回流式结果
+
 
 
