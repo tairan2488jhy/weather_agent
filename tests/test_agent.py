@@ -23,34 +23,6 @@ class TestRunAgent:
         assert result == "你好，有什么可以帮你的？"
         mock_client.chat_completion_with_tools.assert_called_once()
 
-    # @patch("agent.llm_client")
-    # def test_tool_call_flow(self, mock_client):
-    #     """模型调用工具后，应返回最终生成的回复"""
-    #     # --- 第一次调用：模型决定调用工具 ---
-    #     mock_tool_call = MagicMock()
-    #     mock_tool_call.id = "call_001"
-    #     mock_tool_call.function.name = "get_weather_real"
-    #     mock_tool_call.function.arguments = json.dumps({"city": "北京"})
-
-    #     first_response = MagicMock()
-    #     first_response.choices[0].message.tool_calls = [mock_tool_call]
-    #     first_response.choices[0].message.content = None
-
-    #     # --- 第二次调用：模型根据工具结果生成最终回复 ---
-    #     second_response = MagicMock()
-    #     second_response.choices[0].message.content = "北京今天晴，25°C，适合出行。"
-
-    #     # side_effect: 第一次返回 first_response，第二次返回 second_response
-    #     mock_client.chat_completion_with_tools.side_effect = [first_response, second_response]
-
-    #     from agent import run_agent
-    #     result = run_agent("北京天气怎么样？")
-
-    #     print(f"result-->{result.choices[0].message.content}")
-
-    #     assert result == "北京: 🌤️  +33°C"
-    #     assert mock_client.chat_completion_with_tools.call_count == 2
-
     @patch("agent.llm_client")
     def test_tool_call_flow(self, mock_client):
         """模型调用工具后，应返回最终生成的回复"""
