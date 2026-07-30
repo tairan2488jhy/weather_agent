@@ -128,14 +128,18 @@ def run_agent(message: str, history: list = None) -> str:
 
       # 6. 第二次调用 LLM， 让他根据工具返回的结果生成最终的回复  
 
-      logger.info("正在请求 LLM 生成最终回复...")
-      second_response = llm_client.chat_completion(
-        messages=messages,
-        model=None
-        )
-      final_latency = time.time() - start_time
-      logger.info(f"请求处理完成，总耗时: {final_latency:.2f}s")
-      return second_response.choices[0].message.content
+      # logger.info("正在请求 LLM 生成最终回复...")
+      # second_response = llm_client.chat_completion(
+      #   messages=messages,
+      #   model=None
+      #   )
+      # final_latency = time.time() - start_time
+      # logger.info(f"请求处理完成，总耗时: {final_latency:.2f}s")
+      # return second_response.choices[0].message.content
+      logger.info("正在请求 LLM 生成最终回复（流式）...")
+      full_content = stream_and_collect(llm_client, messages)
+      logger.info("请求处理完成")
+      return full_content
 
     else:
       # 如果模型没有调用工具，直接返回它的回复
@@ -149,3 +153,24 @@ def run_agent(message: str, history: list = None) -> str:
   except Exception as e:
     # 捕获并处理所有可能的异常，返回友好的错误信息
     return "Error: " + str(e)
+  
+def stream_and_collect(client: BaseLLMClient, messages: list) -> str:
+  """
+  流式输出并收集完整内容
+  -- 实时打印到终端（打字机效果）
+  -- 同时收集完整文本用于返回
+  """
+  stream = client.chat_completion_stream(messages=messages, model=None)
+
+  parts = []
+  for chunk in stream:
+    if not chunk.choices:
+      continue
+    content = chunk.choices[0].delta.content
+    if content:
+      print("实时输出：", content, end="", flush=True) # 实时输出到终端
+      parts.append(content)
+
+  print() # 最后换行
+  full_text = "".join(parts)
+  return full_text

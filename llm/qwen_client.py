@@ -42,7 +42,7 @@ class QwenClient(BaseLLMClient):
     流式调用，返回 chunk 迭代器（生成器）
     """
     return self.client.chat.completions.create(
-      model=model or QWEN_MODEL
+      model=model or QWEN_MODEL,
       messages=messages,
       stream=True, # 关键：开启流式
     )

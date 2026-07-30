@@ -25,7 +25,7 @@ class TestRunAgent:
 
     @patch("agent.llm_client")
     def test_tool_call_flow(self, mock_client):
-        """模型调用工具后，应返回最终生成的回复"""
+        """模型调用工具后，应流式返回最终生成的回复"""
         # --- 第一次调用：chat_completion_with_tools，模型决定调用工具 ---
         mock_tool_call = MagicMock()
         mock_tool_call.id = "call_001"
@@ -42,27 +42,68 @@ class TestRunAgent:
         first_response = MagicMock()
         first_response.choices = [first_choice]
 
-        # --- 第二次调用：chat_completion，模型根据工具结果生成最终回复 ---
-        second_message = MagicMock()
-        second_message.content = "北京今天晴，25°C，适合出行。"
-        second_message.tool_calls = None
-
-        second_choice = MagicMock()
-        second_choice.message = second_message
-
-        second_response = MagicMock()
-        second_response.choices = [second_choice]
-
-        # 第一次走 chat_completion_with_tools，第二次走 chat_completion
         mock_client.chat_completion_with_tools.return_value = first_response
-        mock_client.chat_completion.return_value = second_response
+
+        # --- 第二次调用：chat_completion_stream，返回流式 chunk ---
+        # 模拟 3 个 chunk
+        chunk1 = MagicMock()
+        chunk1.choices[0].delta.content = "北京今天晴，"
+
+        chunk2 = MagicMock()
+        chunk2.choices[0].delta.content = "25°C，"
+
+        chunk3 = MagicMock()
+        chunk3.choices[0].delta.content = "适合出行。"
+
+        mock_client.chat_completion_stream.return_value = iter([chunk1, chunk2, chunk3])
 
         from agent import run_agent
         result = run_agent("北京天气怎么样？")
 
         assert result == "北京今天晴，25°C，适合出行。"
         mock_client.chat_completion_with_tools.assert_called_once()
-        mock_client.chat_completion.assert_called_once()
+        mock_client.chat_completion_stream.assert_called_once()
+
+    # @patch("agent.llm_client")
+    # def test_tool_call_flow(self, mock_client):
+    #     """模型调用工具后，应返回最终生成的回复"""
+    #     # --- 第一次调用：chat_completion_with_tools，模型决定调用工具 ---
+    #     mock_tool_call = MagicMock()
+    #     mock_tool_call.id = "call_001"
+    #     mock_tool_call.function.name = "get_weather_real"
+    #     mock_tool_call.function.arguments = json.dumps({"city": "北京"})
+
+    #     first_message = MagicMock()
+    #     first_message.tool_calls = [mock_tool_call]
+    #     first_message.content = None
+
+    #     first_choice = MagicMock()
+    #     first_choice.message = first_message
+
+    #     first_response = MagicMock()
+    #     first_response.choices = [first_choice]
+
+    #     # --- 第二次调用：chat_completion，模型根据工具结果生成最终回复 ---
+    #     second_message = MagicMock()
+    #     second_message.content = "北京今天晴，25°C，适合出行。"
+    #     second_message.tool_calls = None
+
+    #     second_choice = MagicMock()
+    #     second_choice.message = second_message
+
+    #     second_response = MagicMock()
+    #     second_response.choices = [second_choice]
+
+    #     # 第一次走 chat_completion_with_tools，第二次走 chat_completion
+    #     mock_client.chat_completion_with_tools.return_value = first_response
+    #     mock_client.chat_completion.return_value = second_response
+
+    #     from agent import run_agent
+    #     result = run_agent("北京天气怎么样？")
+
+    #     assert result == "北京今天晴，25°C，适合出行。"
+    #     mock_client.chat_completion_with_tools.assert_called_once()
+    #     mock_client.chat_completion.assert_called_once()
 
 
 
