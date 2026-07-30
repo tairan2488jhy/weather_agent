@@ -106,7 +106,6 @@
 2026-07-29 15:53:10 - INFO - agent.py:96 - 正在执行工具: get_weather_real, 参数: {'city': '北京'}
 [系统日志]正在从真实API查询 北京 的天气…
 2026-07-29 15:53:11 - INFO - agent.py:108 - 工具执行成功: get_weather_real, 耗时: 1.20s, 结果: 北京: 🌤️  +36°C
-
 2026-07-29 15:53:11 - INFO - agent.py:131 - 正在请求 LLM 生成最终回复...
 2026-07-29 15:53:14 - INFO - agent.py:137 - 请求处理完成，总耗时: 9.03s
 2026-07-29 15:53:14 - INFO - service.py:53 - 业务层处理完成 - Session: 9a712d9b-8dd8-48ae-bb32-f14f37a7d31c

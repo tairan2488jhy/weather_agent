@@ -109,7 +109,7 @@ def run_agent(message: str, history: list = None) -> str:
 
         except Exception as e:
           tool_latency = time.time() - tool_start
-          logger.error(f"工具执行失败: {tool_name}, 耗时: {tool_latency:.2f}s, 错误: {e}")
+          logger.error(f"工具执行失败: {function_name}, 耗时: {tool_latency:.2f}s, 错误: {e}")
           result = f"Error: {e}"
 
         

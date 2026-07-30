@@ -10,19 +10,23 @@ class TestQwenClient:
     """测试 QwenClient"""
 
     @patch("llm.qwen_client.OpenAI")
-    def test_chat_completion_returns_string(self, mock_openai_class):
+    def test_chat_completion_returns_response(self, mock_openai_class):
         """chat_completion 应返回字符串"""
         # 模拟 OpenAI SDK 的返回值
         mock_instance = MagicMock()
+        mock_response = MagicMock()
+        mock_instance.chat.completions.create.return_value = mock_response
+
         mock_openai_class.return_value = mock_instance
         mock_instance.chat.completions.create.return_value.choices[0].message.content = "测试回复"
 
         from llm.qwen_client import QwenClient
         client = QwenClient()
-        result = client.chat_completion([{"role": "user", "content": "你好"}])
+        result = client.chat_completion([{"role": "user", "content": "你好"}], None)
 
-        assert isinstance(result, str)
-        assert result == "测试回复"
+        assert result is mock_response
+        # assert isinstance(result, str)
+        # assert result == "测试回复"
 
     @patch("llm.qwen_client.OpenAI")
     def test_chat_completion_with_tools_returns_response(self, mock_openai_class):
@@ -38,7 +42,9 @@ class TestQwenClient:
         client = QwenClient()
         result = client.chat_completion_with_tools(
             messages=[{"role": "user", "content": "北京天气"}],
-            tools=[]
+            tools=[],
+            model=None
+
         )
 
         # 返回的应该是 response 对象，不是字符串
@@ -56,7 +62,8 @@ class TestQwenClient:
         fake_tools = [{"type": "function", "function": {"name": "test"}}]
         client.chat_completion_with_tools(
             messages=[{"role": "user", "content": "测试"}],
-            tools=fake_tools
+            tools=fake_tools,
+            model=None
         )
 
         # 验证 tools 被传给了 API

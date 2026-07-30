@@ -21,6 +21,6 @@ def create_llm_client(provider: str="qwen") -> BaseLLMClient:
 
   client_class = providers.get(provider.lower())
   if not client_class:
-    raise ValueError(f"不支持的 LLM 供应商：{ provider }, 当前支持： {list(providers.keys)}")
+    raise ValueError(f"不支持的 LLM 供应商：{ provider }, 当前支持： {list(providers.keys())}")
   
   return client_class()
