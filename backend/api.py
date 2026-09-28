@@ -19,8 +19,9 @@ API 接口层（Controller Layer）
 """
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import StreamingResponse # ✅ 1. 新增导入
 from .schemas import ChatRequest, ChatResponse
-from .service import process
+from .service import process, process_stream
 from config import HOST, PORT
 from logger import logger # 新增导入
 
@@ -70,7 +71,33 @@ async def chat_endpoint(request: ChatRequest):
     # --- 使用 logger 记录错误 ---
     logger.error(f"处理 /chat 请求时发生异常: {e}", exc_info=True) # exc_info=True 会记录完整的堆栈跟踪
     raise HTTPException(status_code=500, detail=str(e))
-  
+
+# ✅ 修正后的流式接口：完全异步化
+@app.post("/chat/stream")
+async def chat_stream_endpoint(request: ChatRequest):
+    """
+    流式 API 接口 (Controller Layer)
+    """
+    try:
+        # 定义一个异步生成器
+        async def event_generator():
+            # 使用 async for 遍历异步生成器 process_stream
+            async for chunk in process_stream(message=request.message, session_id=request.session_id):
+                # 按照 SSE 协议格式返回
+                yield f"data: {chunk}\n\n"
+            
+            yield "data: [DONE]\n\n"
+
+        # 返回 StreamingResponse
+        return StreamingResponse(
+            event_generator(), 
+            media_type="text/event-stream"
+        )
+
+    except Exception as e:
+        logger.error(f"处理 /chat/stream 请求时发生异常: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/health")
 async def health_check():
   """健康检查接口，用于确认服务是否正常运行"""

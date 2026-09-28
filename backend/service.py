@@ -1,6 +1,6 @@
 # backend/service.py\
 from typing import Optional, Dict, Any
-from agent import run_agent
+from agent import run_agent, run_agent_stream
 from .schemas import AgentContext
 from logger import logger # 新增导入
 
@@ -55,5 +55,21 @@ def process(message: str, session_id: Optional[str] = None) -> str:
   # 5. 返回结果
   return reply
 
+async def process_stream(message: str, session_id: Optional[str] = None):
+  """流式业务处理，返回生成器"""
+  # --- 记录业务请求 ---
+  logger.info(f"业务层收到流式请求 - Session: {session_id}, 消息: '{message}'")
 
+  # 1. & 2. 准备上下文（Prepare Context）
+  # 如果 session_id 不存在, 则初始化为空列表
+  history = _session_store.get(session_id, [])
+  context = AgentContext(session_id=session_id, history=history)
+
+
+  for chunk in run_agent_stream(message, context.history):
+    yield chunk
+
+  logger.info(f"业务层流式处理完成 - Session: {session_id}")
+
+  
 

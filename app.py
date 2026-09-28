@@ -3,7 +3,7 @@
 import gradio as gr         #Gradio库 用于创建Web界面
 import requests
 import uuid
-from config import SERVICE_API_URL
+from config import SERVICE_API_URL, DEBUG
 
 # =========== 配置 ==========
 API_URL = SERVICE_API_URL
@@ -13,7 +13,7 @@ SESSION_ID = str(uuid.uuid4())
 
 
 # ======== 核心函数 ========
-def chat_with_api(message: str, history: list) -> str:
+def chat_with_api(message: str, history: list):
   """
   通过 HTTP 请求调用后端 API
   - message: 用户当前输入
@@ -26,11 +26,32 @@ def chat_with_api(message: str, history: list) -> str:
         "message": message,
         "session_id": SESSION_ID
       },
-      timeout=60
+      stream=True,
+      timeout=600
     )
     response.raise_for_status()
-    data = response.json()
-    return data["reply"]
+
+    partial_reply = ""
+    # data = response.json()
+    # 逐行读取 SSE 数据
+    for line in response.iter_lines(decode_unicode=True):
+        if not line:
+            continue
+
+        # SSE 格式: "data: 内容"
+        if line.startswith("data: "):
+            data = line[6:]  # 去掉 "data: " 前缀
+
+            if data == "[DONE]":
+                break
+
+            partial_reply += data
+            yield partial_reply   # ← 改动4：逐步返回给 Gradio
+            if DEBUG:
+               import time
+               time.sleep(2000)
+            
+    # return data["reply"]
   except requests.exceptions.ConnectionError:
     return "❌ 无法连接到后端服务，请确认已执行： uvicorn backend.api:app --reload"
   except requests.exceptions.Timeout:
